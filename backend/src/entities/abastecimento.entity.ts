@@ -49,8 +49,17 @@ export class Abastecimento {
   @Column({ name: 'buyer_cpf' })
   buyer_cpf: string;
 
+  @Column({ name: 'buyer_full_name' })
+  buyer_full_name: string;
+
   @Column({ name: 'establishment_cnpj' })
   establishment_cnpj: string;
+
+  @Column({ name: 'type_fuel', type: 'varchar', length: 50 })
+  type_fuel: string;
+
+  @Column({ name: 'origin', type: 'varchar', length: 50 })
+  origin: string;
 
   @Column({ nullable: true, name: 'observations', type: 'text', default: null })
   observations: string | null;

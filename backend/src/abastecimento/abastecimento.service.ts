@@ -7,6 +7,11 @@ import { FilialService } from '../filial/filial.service';
 import { ItemAbastecimentoService } from '../item-abastecimento/item-abastecimento.service';
 import { MotoristaService } from '../motorista/motorista.service';
 import { PostoService } from '../posto/posto.service';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import {
+  AbastecimentoResponseDto,
+  PaginatedAbastecimentoResponseDto,
+} from './dto/abastecimento-response.dto';
 import { CreateAbastecimentoDto } from './dto/create-abastecimento.dto';
 import { RawAbastecimentoPayload } from './interfaces/raw-abastecimento-payload.interface';
 import { AbastecimentoMapper } from './mappers/abastecimento.mapper';
@@ -24,8 +29,26 @@ export class AbastecimentoService {
     private readonly itemAbastecimentoService: ItemAbastecimentoService,
   ) {}
 
-  findAll(): Promise<Abastecimento[]> {
-    return this.abastecimentoRepository.find({ relations: { items: true } });
+  async findAll(
+    query: PaginationQueryDto,
+  ): Promise<PaginatedAbastecimentoResponseDto> {
+    const { page, limit } = query;
+    const skip = (page - 1) * limit;
+
+    const [records, total] = await this.abastecimentoRepository.findAndCount({
+      relations: { items: true, posto: true, filial: true, motorista: true },
+      order: { fueling_date: 'DESC' },
+      skip,
+      take: limit,
+    });
+
+    return {
+      data: records.map(this.toResponseDto),
+      page,
+      limit,
+      total,
+      total_pages: Math.ceil(total / limit),
+    };
   }
 
   async create(
@@ -47,12 +70,23 @@ export class AbastecimentoService {
     }
   }
 
+  private toResponseDto(entity: Abastecimento): AbastecimentoResponseDto {
+    const { raw_payload: _omit, ...rest } = entity as any;
+    return rest as AbastecimentoResponseDto;
+  }
+
   private async persistOne(
     rawJson: RawAbastecimentoPayload,
   ): Promise<{ protocolo_number: string; status: 'created' | 'ignored' }> {
     const [motorista, posto, filial] = await Promise.all([
-      this.motoristaService.findOrCreate(rawJson.buyer_cpf, rawJson.buyer_full_name),
-      this.postoService.findOrCreate(rawJson.establishment_cnpj, rawJson.establishment_official_name),
+      this.motoristaService.findOrCreate(
+        rawJson.buyer_cpf,
+        rawJson.buyer_full_name,
+      ),
+      this.postoService.findOrCreate(
+        rawJson.establishment_cnpj,
+        rawJson.establishment_official_name,
+      ),
       this.filialService.findOrCreate(
         rawJson.client_branch_cnpj,
         rawJson.client_branch_official_name,
