@@ -15,8 +15,8 @@ export class Posto {
   @PrimaryColumn('uuid')
   id: string;
 
-  @Column({ name: 'nome_fantasia' })
-  nome_fantasia: string;
+  @Column({ name: 'trade_name' })
+  trade_name: string;
 
   @Column({ unique: true })
   cnpj: string;

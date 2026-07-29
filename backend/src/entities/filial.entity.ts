@@ -2,15 +2,12 @@ import {
   Entity,
   PrimaryColumn,
   Column,
-  ManyToOne,
   OneToMany,
-  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   BeforeInsert,
 } from 'typeorm';
 import { uuidv7 } from 'uuidv7';
-import { Empresa } from './empresa.entity';
 import { Abastecimento } from './abastecimento.entity';
 
 @Entity('filiais')
@@ -19,14 +16,13 @@ export class Filial {
   id: string;
 
   @Column()
-  nome: string;
+  name: string;
 
   @Column({ unique: true })
   cnpj: string;
 
-  @ManyToOne(() => Empresa, (empresa) => empresa.filiais, { nullable: false })
-  @JoinColumn({ name: 'empresa_id' })
-  empresa: Empresa;
+  @Column({ name: 'company_id', type: 'varchar', nullable: true })
+  company_id: string | null;
 
   @OneToMany(() => Abastecimento, (abastecimento) => abastecimento.filial)
   abastecimentos: Abastecimento[];

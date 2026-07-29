@@ -16,7 +16,7 @@ export class Motorista {
   id: string;
 
   @Column()
-  nome: string;
+  full_name: string;
 
   @Column({ unique: true })
   cpf: string;

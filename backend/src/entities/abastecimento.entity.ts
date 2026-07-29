@@ -3,6 +3,7 @@ import {
   PrimaryColumn,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
@@ -10,8 +11,9 @@ import {
 } from 'typeorm';
 import { uuidv7 } from 'uuidv7';
 import { Filial } from './filial.entity';
-import { Posto } from './posto.entity';
+import { ItemAbastecimento } from './item-abastecimento.entity';
 import { Motorista } from './motorista.entity';
+import { Posto } from './posto.entity';
 import { NumericTransformer } from '../common/transformers/numeric.transformer';
 /**
   TODO (Infra): Criar índice GIN com pg_trgm na coluna placa_veiculo via migration 
@@ -24,17 +26,20 @@ export class Abastecimento {
   @PrimaryColumn('uuid')
   id: string;
 
-  @Column({ type: 'numeric', transformer: NumericTransformer })
-  valor_total: string;
+  @Column({ name: 'protocolo_number', unique: true })
+  protocolo_number: string;
 
   @Column({ type: 'numeric', transformer: NumericTransformer })
-  litragem: string;
+  total_amount: string;
+
+  @Column({ type: 'numeric', transformer: NumericTransformer })
+  total_liters: string;
 
   @Column()
-  placa_veiculo: string;
+  vehicle_plate: string;
 
-  @Column({ type: 'timestamptz', name: 'data_abastecimento' })
-  data_abastecimento: Date;
+  @Column({ type: 'timestamptz', name: 'fueling_date' })
+  fueling_date: Date;
 
   // Armazena o payload original
   @Column({ type: 'jsonb', name: 'raw_payload' })
@@ -46,6 +51,9 @@ export class Abastecimento {
 
   @Column({ name: 'establishment_cnpj' })
   establishment_cnpj: string;
+
+  @Column({ nullable: true, name: 'observations', type: 'text', default: null })
+  observations: string | null;
 
   @ManyToOne(() => Filial, (filial) => filial.abastecimentos, {
     nullable: false,
@@ -64,6 +72,11 @@ export class Abastecimento {
   })
   @JoinColumn({ name: 'motorista_id' })
   motorista: Motorista;
+
+  @OneToMany(() => ItemAbastecimento, (item) => item.abastecimento, {
+    cascade: true,
+  })
+  items: ItemAbastecimento[];
 
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
