@@ -70,6 +70,13 @@ export class AbastecimentoService {
     }
   }
 
+  // Exposto para SyncService: permite controle granular de erro por item
+  async persistOnePublic(
+    rawJson: RawAbastecimentoPayload,
+  ): Promise<{ protocolo_number: string; status: 'created' | 'ignored' }> {
+    return this.persistOne(rawJson);
+  }
+
   private toResponseDto(entity: Abastecimento): AbastecimentoResponseDto {
     const { raw_payload: _omit, ...rest } = entity as any;
     return rest as AbastecimentoResponseDto;

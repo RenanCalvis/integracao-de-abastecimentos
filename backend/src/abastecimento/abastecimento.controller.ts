@@ -6,16 +6,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { SyncService, SyncReport } from '../sync/sync.service';
 import { AbastecimentoService } from './abastecimento.service';
-import {
-  PaginatedAbastecimentoResponseDto,
-} from './dto/abastecimento-response.dto';
+import { PaginatedAbastecimentoResponseDto } from './dto/abastecimento-response.dto';
 import { CreateAbastecimentoDto } from './dto/create-abastecimento.dto';
 
 @ApiTags('Abastecimentos')
 @Controller('abastecimentos')
 export class AbastecimentoController {
-  constructor(private readonly abastecimentoService: AbastecimentoService) {}
+  constructor(
+    private readonly abastecimentoService: AbastecimentoService,
+    private readonly syncService: SyncService,
+  ) {}
 
   @Post()
   @HttpCode(201)
@@ -28,12 +30,37 @@ export class AbastecimentoController {
   @ApiResponse({
     status: 201,
     description: 'Abastecimento criado ou ignorado (duplicata).',
-    schema: {
-      example: { protocolo_number: '100000000000506', status: 'created' },
-    },
+    schema: { example: { protocolo_number: '100000000000506', status: 'created' } },
   })
   async create(@Body() createAbastecimentoDto: CreateAbastecimentoDto) {
     return this.abastecimentoService.create(createAbastecimentoDto);
+  }
+
+  @Post('sync')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Dispara sincronização com a API externa',
+    description:
+      'Executa o loop de cursor-based pagination contra a API de protocolos, ' +
+      'persistindo todos os abastecimentos de forma idempotente. ' +
+      'Retorna um relatório com totais de criados, ignorados e erros.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Relatório da sincronização.',
+    schema: {
+      example: {
+        pages_fetched: 5,
+        total_processed: 247,
+        total_created: 243,
+        total_ignored: 4,
+        total_errors: 0,
+        duration_ms: 8342,
+      },
+    },
+  })
+  async sync(): Promise<SyncReport> {
+    return this.syncService.runSync('manual');
   }
 
   @Get()
