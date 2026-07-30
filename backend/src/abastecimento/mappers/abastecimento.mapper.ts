@@ -2,6 +2,8 @@ import Decimal from 'decimal.js';
 import { Abastecimento } from '../../entities/abastecimento.entity';
 import { RawAbastecimentoPayload } from '../interfaces/raw-abastecimento-payload.interface';
 
+Decimal.set({ precision: 40 });
+
 export class AbastecimentoMapper {
   static toDomain(rawJson: RawAbastecimentoPayload): Partial<Abastecimento> {
     let totalAmount = new Decimal(0);

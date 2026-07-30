@@ -1,7 +1,9 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { uuidv7 } from 'uuidv7';
+
 import { Abastecimento } from '../entities/abastecimento.entity';
 import { FilialService } from '../filial/filial.service';
 import { ItemAbastecimentoService } from '../item-abastecimento/item-abastecimento.service';
@@ -200,8 +202,9 @@ export class AbastecimentoService {
   }
 
   private toResponseDto(entity: Abastecimento): AbastecimentoResponseDto {
-    const { raw_payload: _omit, ...rest } = entity as any;
-    return rest as AbastecimentoResponseDto;
+    const dto: Record<string, unknown> = { ...entity };
+    delete dto.raw_payload;
+    return dto as unknown as AbastecimentoResponseDto;
   }
 
   private async persistOne(
@@ -236,11 +239,13 @@ export class AbastecimentoService {
         motorista: { id: motorista.id },
         posto: { id: posto.id },
         filial: { id: filial.id },
-      } as any)
+      } as QueryDeepPartialEntity<Abastecimento>)
+
       .orIgnore()
       .execute();
 
-    const wasInserted = result.raw.length > 0;
+    const rawInserted = result.raw as Array<unknown>;
+    const wasInserted = Array.isArray(rawInserted) && rawInserted.length > 0;
 
     if (wasInserted) {
       await this.itemAbastecimentoService.createForAbastecimento(

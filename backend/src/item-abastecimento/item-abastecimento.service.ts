@@ -6,6 +6,8 @@ import { uuidv7 } from 'uuidv7';
 import { ItemAbastecimento } from '../entities/item-abastecimento.entity';
 import { RawLineItem } from '../abastecimento/interfaces/raw-abastecimento-payload.interface';
 
+Decimal.set({ precision: 40 });
+
 @Injectable()
 export class ItemAbastecimentoService {
   constructor(
