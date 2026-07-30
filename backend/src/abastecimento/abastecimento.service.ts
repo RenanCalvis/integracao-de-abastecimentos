@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { uuidv7 } from 'uuidv7';
@@ -7,6 +7,8 @@ import { FilialService } from '../filial/filial.service';
 import { ItemAbastecimentoService } from '../item-abastecimento/item-abastecimento.service';
 import { MotoristaService } from '../motorista/motorista.service';
 import { PostoService } from '../posto/posto.service';
+import { ReceiptService } from '../receipt/receipt.service';
+import { StorageService } from '../storage/storage.service';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
   AbastecimentoResponseDto,
@@ -27,7 +29,36 @@ export class AbastecimentoService {
     private readonly postoService: PostoService,
     private readonly filialService: FilialService,
     private readonly itemAbastecimentoService: ItemAbastecimentoService,
+    private readonly receiptService: ReceiptService,
+    private readonly storageService: StorageService,
   ) {}
+
+  async getComprovanteUrl(id: string): Promise<{ url: string }> {
+    const abastecimento = await this.abastecimentoRepository.findOne({
+      where: { id },
+      relations: { items: true, posto: true, filial: true, motorista: true },
+    });
+
+    if (!abastecimento) {
+      throw new NotFoundException(
+        `Abastecimento com ID '${id}' não encontrado.`,
+      );
+    }
+
+    if (abastecimento.receipt_url) {
+      return { url: abastecimento.receipt_url };
+    }
+
+    const pdfBuffer =
+      await this.receiptService.generateReceiptPdf(abastecimento);
+    const filename = `comprovante-${abastecimento.protocolo_number}.pdf`;
+    const url = await this.storageService.uploadReceipt(filename, pdfBuffer);
+
+    abastecimento.receipt_url = url;
+    await this.abastecimentoRepository.save(abastecimento);
+
+    return { url };
+  }
 
   async findAll(
     query: PaginationQueryDto,

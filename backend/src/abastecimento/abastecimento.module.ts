@@ -9,6 +9,8 @@ import { FilialModule } from '../filial/filial.module';
 import { ItemAbastecimentoModule } from '../item-abastecimento/item-abastecimento.module';
 import { MotoristaModule } from '../motorista/motorista.module';
 import { PostoModule } from '../posto/posto.module';
+import { ReceiptModule } from '../receipt/receipt.module';
+import { StorageModule } from '../storage/storage.module';
 import { SyncService } from '../sync/sync.service';
 import { AbastecimentoController } from './abastecimento.controller';
 import { AbastecimentoService } from './abastecimento.service';
@@ -22,7 +24,10 @@ import { AbastecimentoService } from './abastecimento.service';
     PostoModule,
     FilialModule,
     ItemAbastecimentoModule,
+    ReceiptModule,
+    StorageModule,
   ],
+
   controllers: [AbastecimentoController],
   providers: [AbastecimentoService, SyncService],
   exports: [AbastecimentoService],

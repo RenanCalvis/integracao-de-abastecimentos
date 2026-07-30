@@ -92,6 +92,9 @@ export class AbastecimentoResponseDto {
   @ApiPropertyOptional({ example: 'Uso informado: 197731km.' })
   observations: string | null;
 
+  @ApiPropertyOptional({ example: 'http://localhost:3103/comprovantes/comprovante-100000000000506.pdf' })
+  receipt_url: string | null;
+
   @ApiProperty()
   created_at: Date;
 
@@ -127,3 +130,9 @@ export class PaginatedAbastecimentoResponseDto {
   @ApiProperty({ example: 18 })
   total_pages: number;
 }
+
+export class ComprovanteResponseDto {
+  @ApiProperty({ example: 'http://localhost:3103/comprovantes/comprovante-100000000000506.pdf' })
+  url: string;
+}
+

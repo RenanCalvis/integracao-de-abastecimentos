@@ -1,6 +1,7 @@
-import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
 import {
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -8,8 +9,12 @@ import {
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { SyncService, SyncReport } from '../sync/sync.service';
 import { AbastecimentoService } from './abastecimento.service';
-import { PaginatedAbastecimentoResponseDto } from './dto/abastecimento-response.dto';
+import {
+  ComprovanteResponseDto,
+  PaginatedAbastecimentoResponseDto,
+} from './dto/abastecimento-response.dto';
 import { CreateAbastecimentoDto } from './dto/create-abastecimento.dto';
+
 
 @ApiTags('Abastecimentos')
 @Controller('abastecimentos')
@@ -82,4 +87,22 @@ export class AbastecimentoController {
   ): Promise<PaginatedAbastecimentoResponseDto> {
     return this.abastecimentoService.findAll(query);
   }
+
+  @Get(':id/comprovante')
+  @ApiOperation({
+    summary: 'Obtém a URL do comprovante do abastecimento',
+    description:
+      'Gera o comprovante PDF em estilo cupom fiscal sob demanda (Lazy Loading) caso ainda não exista, ' +
+      'armazena no MinIO, atualiza a entidade com a URL gerada e a retorna.',
+  })
+  @ApiParam({ name: 'id', description: 'ID do abastecimento' })
+  @ApiResponse({
+    status: 200,
+    description: 'URL do comprovante.',
+    type: ComprovanteResponseDto,
+  })
+  async getComprovante(@Param('id') id: string): Promise<ComprovanteResponseDto> {
+    return this.abastecimentoService.getComprovanteUrl(id);
+  }
 }
+
