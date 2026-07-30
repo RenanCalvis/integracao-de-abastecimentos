@@ -16,10 +16,11 @@ import { Motorista } from './motorista.entity';
 import { Posto } from './posto.entity';
 import { NumericTransformer } from '../common/transformers/numeric.transformer';
 /**
-  TODO (Infra): Criar índice GIN com pg_trgm na coluna placa_veiculo via migration 
-  para otimizar buscas parciais (ILIKE). 
-  O decorator @Index() foi omitido intencionalmente para evitar que o TypeORM 
-  crie um índice B-Tree conflitante durante o synchronize.
+ * Infra: O índice GIN com pg_trgm na coluna vehicle_plate (placa_veiculo) é gerenciado
+ * via Migration (src/database/migrations/1785439006341-CreateVehiclePlateGinIndex.ts)
+ * para otimizar buscas parciais (ILIKE).
+ * O decorator @Index() foi omitido intencionalmente para evitar que o TypeORM
+ * crie um índice B-Tree conflitante durante o synchronize.
  */
 @Entity('abastecimentos')
 export class Abastecimento {

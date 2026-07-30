@@ -1,19 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { join } from 'path';
 
 /**
  * DatabaseModule
  *
  * Configura a conexão com o PostgreSQL via TypeORM.
  *
- * - A URL de conexão é lida da variável de ambiente DATABASE_URL,
+ *  A URL de conexão é lida da variável de ambiente DATABASE_URL,
  *   que é injetada pelo Docker Compose no serviço `backend`.
- * - `synchronize: true` é habilitado EXCLUSIVAMENTE para o ambiente
- *   de desenvolvimento inicial. Deve ser desabilitado antes de qualquer
- *   deploy em produção.
- * - `autoLoadEntities: true` garante que entidades registradas via
- *   TypeOrmModule.forFeature() nos módulos de domínio sejam carregadas
- *   automaticamente, sem necessidade de listá-las aqui manualmente.
+ * migrations: Utiliza Glob Pattern (`join(__dirname, 'migrations', '*{.ts,.js}')`)
+ *   para carregar automaticamente qualquer migration presente no diretório,
+ *   sem necessidade de importação manual de cada classe.
+ * migrationsRun: true` executa automaticamente as migrations pendentes na inicialização.
  */
 @Module({
   imports: [
@@ -21,8 +20,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: false,
       logging: process.env.NODE_ENV === 'development',
+      migrations: [join(__dirname, '..', 'migrations', '*.{ts,js}')],
+      migrationsRun: true,
     }),
   ],
 })
