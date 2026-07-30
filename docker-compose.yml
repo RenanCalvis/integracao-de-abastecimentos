@@ -11,11 +11,14 @@ services:
       - /usr/src/app/node_modules 
     environment:
       - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3101
+
 
   backend:
     build:
       context: ./backend
     platform: linux/arm64
+    command: npm run start:dev
     ports:
       - "3101:3000" 
     volumes:

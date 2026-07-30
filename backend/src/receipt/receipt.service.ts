@@ -4,13 +4,26 @@ import { Abastecimento } from '../entities/abastecimento.entity';
 
 @Injectable()
 export class ReceiptService {
+  private translateOrigin(origin: string): string {
+    const map: Record<string, string> = {
+      government_allocation: 'Alocação Governamental',
+    };
+    return map[origin] || origin;
+  }
+
+  private translateTypeFuel(typeFuel: string): string {
+    const map: Record<string, string> = {
+      fuel: 'Combustível',
+    };
+    return map[typeFuel] || typeFuel;
+  }
+
   async generateReceiptPdf(abastecimento: Abastecimento): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const itemsCount = abastecimento.items?.length || 0;
-      // Calcula a altura dinâmica com base na quantidade de itens e observações
       const calculatedHeight = Math.max(
-        500,
-        450 + itemsCount * 35 + (abastecimento.observations ? 40 : 0),
+        520,
+        470 + itemsCount * 35 + (abastecimento.observations ? 40 : 0),
       );
 
       const doc = new PDFDocument({
@@ -46,10 +59,17 @@ export class ReceiptService {
           align: 'center',
         });
 
-      const formattedDate = abastecimento.fueling_date
+      const fuelingDateFormatted = abastecimento.fueling_date
         ? new Date(abastecimento.fueling_date).toLocaleString('pt-BR')
         : 'N/A';
-      doc.text(`Data: ${formattedDate}`, { align: 'center' });
+      const emissionDateFormatted = new Date().toLocaleString('pt-BR');
+
+      doc.text(`Data do Abastecimento: ${fuelingDateFormatted}`, {
+        align: 'center',
+      });
+      doc.text(`Data de Emissão: ${emissionDateFormatted}`, {
+        align: 'center',
+      });
       doc.moveDown(0.4);
 
       separator();
@@ -108,7 +128,7 @@ export class ReceiptService {
 
           doc
             .font('Helvetica')
-            .text(`  ${qty} Qtd  x  R$ ${unitPrice}  =  R$ ${lineTotal}`);
+            .text(`  ${qty} L  x  R$ ${unitPrice}  =  R$ ${lineTotal}`);
           doc.moveDown(0.2);
         }
       } else {
@@ -127,6 +147,9 @@ export class ReceiptService {
         { minimumFractionDigits: 2, maximumFractionDigits: 3 },
       );
 
+      const translatedFuel = this.translateTypeFuel(abastecimento.type_fuel);
+      const translatedOrigin = this.translateOrigin(abastecimento.origin);
+
       doc
         .fontSize(10)
         .font('Helvetica-Bold')
@@ -135,9 +158,7 @@ export class ReceiptService {
         .fontSize(8)
         .font('Helvetica')
         .text(`Litragem Total: ${totalLiters} L`);
-      doc.text(
-        `Tipo de Combustível: ${abastecimento.type_fuel} | Origem: ${abastecimento.origin}`,
-      );
+      doc.text(`Tipo: ${translatedFuel} | Origem: ${translatedOrigin}`);
 
       if (abastecimento.observations) {
         doc.moveDown(0.3);

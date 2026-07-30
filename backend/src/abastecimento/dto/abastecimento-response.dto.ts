@@ -55,6 +55,32 @@ export class MotoristaResponseDto {
   cpf: string;
 }
 
+export class AbastecimentoListResponseDto {
+  @ApiProperty({ example: '018f1a2b-3c4d-7e5f-8a9b-0c1d2e3f4a5b' })
+  id: string;
+
+  @ApiProperty({ example: '100000000000506' })
+  protocolo_number: string;
+
+  @ApiProperty({ example: '330.68' })
+  total_amount: string;
+
+  @ApiProperty({ example: '84.6' })
+  total_liters: string;
+
+  @ApiProperty({ example: 'MSQ7I34' })
+  vehicle_plate: string;
+
+  @ApiProperty({ example: '2026-07-27T16:50:50.080Z' })
+  fueling_date: Date;
+
+  @ApiProperty({ example: { full_name: 'Warley Moraes' } })
+  motorista: { full_name: string };
+
+  @ApiProperty({ example: { trade_name: 'Sh Informatica LTDA' } })
+  posto: { trade_name: string };
+}
+
 export class AbastecimentoResponseDto {
   @ApiProperty({ example: '018f1a2b-3c4d-7e5f-8a9b-0c1d2e3f4a5b' })
   id: string;
@@ -92,7 +118,10 @@ export class AbastecimentoResponseDto {
   @ApiPropertyOptional({ example: 'Uso informado: 197731km.' })
   observations: string | null;
 
-  @ApiPropertyOptional({ example: 'http://localhost:3103/comprovantes/comprovante-100000000000506.pdf' })
+  @ApiPropertyOptional({
+    example:
+      'http://localhost:3103/comprovantes/comprovante-100000000000506.pdf',
+  })
   receipt_url: string | null;
 
   @ApiProperty()
@@ -130,9 +159,27 @@ export class PaginatedAbastecimentoResponseDto {
   @ApiProperty({ example: 18 })
   total_pages: number;
 }
+export class PaginatedAbastecimentoListResponseDto {
+  @ApiProperty({ type: () => [AbastecimentoListResponseDto] })
+  data: AbastecimentoListResponseDto[];
 
-export class ComprovanteResponseDto {
-  @ApiProperty({ example: 'http://localhost:3103/comprovantes/comprovante-100000000000506.pdf' })
-  url: string;
+  @ApiProperty({ example: 1 })
+  page: number;
+
+  @ApiProperty({ example: 20 })
+  limit: number;
+
+  @ApiProperty({ example: 342 })
+  total: number;
+
+  @ApiProperty({ example: 18 })
+  total_pages: number;
 }
 
+export class ComprovanteResponseDto {
+  @ApiProperty({
+    example:
+      'http://localhost:3103/comprovantes/comprovante-100000000000506.pdf',
+  })
+  url: string;
+}

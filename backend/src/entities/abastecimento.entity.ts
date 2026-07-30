@@ -64,7 +64,12 @@ export class Abastecimento {
   @Column({ nullable: true, name: 'observations', type: 'text', default: null })
   observations: string | null;
 
-  @Column({ nullable: true, name: 'receipt_url', type: 'varchar', default: null })
+  @Column({
+    nullable: true,
+    name: 'receipt_url',
+    type: 'varchar',
+    default: null,
+  })
   receipt_url: string | null;
 
   @ManyToOne(() => Filial, (filial) => filial.abastecimentos, {

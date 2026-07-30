@@ -11,8 +11,9 @@ import { ReceiptService } from '../receipt/receipt.service';
 import { StorageService } from '../storage/storage.service';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
+  AbastecimentoListResponseDto,
   AbastecimentoResponseDto,
-  PaginatedAbastecimentoResponseDto,
+  PaginatedAbastecimentoListResponseDto,
 } from './dto/abastecimento-response.dto';
 import { CreateAbastecimentoDto } from './dto/create-abastecimento.dto';
 import { RawAbastecimentoPayload } from './interfaces/raw-abastecimento-payload.interface';
@@ -62,24 +63,94 @@ export class AbastecimentoService {
 
   async findAll(
     query: PaginationQueryDto,
-  ): Promise<PaginatedAbastecimentoResponseDto> {
-    const { page, limit } = query;
+  ): Promise<PaginatedAbastecimentoListResponseDto> {
+    const {
+      page,
+      limit,
+      vehicle,
+      buyer_cpf,
+      establishment_cnpj,
+      date_from,
+      date_to,
+    } = query;
     const skip = (page - 1) * limit;
 
-    const [records, total] = await this.abastecimentoRepository.findAndCount({
-      relations: { items: true, posto: true, filial: true, motorista: true },
-      order: { fueling_date: 'DESC' },
-      skip,
-      take: limit,
-    });
+    const queryBuilder =
+      this.abastecimentoRepository.createQueryBuilder('abastecimento');
+    // .leftJoinAndSelect('abastecimento.posto', 'posto')
+    // .leftJoinAndSelect('abastecimento.motorista', 'motorista');
+
+    if (vehicle) {
+      queryBuilder.andWhere('abastecimento.vehicle_plate ILIKE :vehicle', {
+        vehicle: `%${vehicle}%`,
+      });
+    }
+
+    if (buyer_cpf) {
+      queryBuilder.andWhere('abastecimento.buyer_cpf = :buyer_cpf', {
+        buyer_cpf,
+      });
+    }
+
+    if (establishment_cnpj) {
+      queryBuilder.andWhere(
+        'abastecimento.establishment_cnpj = :establishment_cnpj',
+        {
+          establishment_cnpj,
+        },
+      );
+    }
+
+    if (date_from) {
+      const fromDate = new Date(date_from);
+      if (!isNaN(fromDate.getTime())) {
+        queryBuilder.andWhere('abastecimento.fueling_date >= :date_from', {
+          date_from: fromDate,
+        });
+      }
+    }
+
+    if (date_to) {
+      const toDate = new Date(date_to);
+      if (!isNaN(toDate.getTime())) {
+        if (date_to.length <= 10) {
+          toDate.setHours(23, 59, 59, 999);
+        }
+        queryBuilder.andWhere('abastecimento.fueling_date <= :date_to', {
+          date_to: toDate,
+        });
+      }
+    }
+
+    queryBuilder
+      .orderBy('abastecimento.fueling_date', 'DESC')
+      .skip(skip)
+      .take(limit);
+
+    const [records, total] = await queryBuilder.getManyAndCount();
 
     return {
-      data: records.map(this.toResponseDto),
+      data: records.map((entity) => this.toListResponseDto(entity)),
       page,
       limit,
       total,
       total_pages: Math.ceil(total / limit),
     };
+  }
+
+  async findOne(id: string): Promise<AbastecimentoResponseDto> {
+    const abastecimento = await this.abastecimentoRepository.findOne({
+      where: { id },
+      relations: { items: true, posto: true, filial: true, motorista: true },
+    });
+
+    if (!abastecimento) {
+      throw new NotFoundException(
+        `Abastecimento com ID '${id}' não encontrado.`,
+      );
+    }
+
+    return this.toResponseDto(abastecimento);
   }
 
   async create(
@@ -106,6 +177,26 @@ export class AbastecimentoService {
     rawJson: RawAbastecimentoPayload,
   ): Promise<{ protocolo_number: string; status: 'created' | 'ignored' }> {
     return this.persistOne(rawJson);
+  }
+
+  private toListResponseDto(
+    entity: Abastecimento,
+  ): AbastecimentoListResponseDto {
+    return {
+      id: entity.id,
+      protocolo_number: entity.protocolo_number,
+      total_amount: entity.total_amount,
+      total_liters: entity.total_liters,
+      vehicle_plate: entity.vehicle_plate,
+      fueling_date: entity.fueling_date,
+      motorista: {
+        full_name:
+          entity.motorista?.full_name || entity.buyer_full_name || 'N/A',
+      },
+      posto: {
+        trade_name: entity.posto?.trade_name || 'N/A',
+      },
+    };
   }
 
   private toResponseDto(entity: Abastecimento): AbastecimentoResponseDto {
