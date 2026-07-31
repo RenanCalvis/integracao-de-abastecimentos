@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, ShieldCheck, Fuel } from 'lucide-react';
 import { Abastecimento } from '@/types/abastecimento';
@@ -66,8 +67,18 @@ export default function ReceiptView({ abastecimento }: ReceiptViewProps) {
     'Motorista Não Informado';
   const driverCpf = abastecimento.motorista?.cpf || abastecimento.buyer_cpf;
 
+  const displayTotal = useMemo(() => {
+    if (abastecimento.items && abastecimento.items.length > 0) {
+      return abastecimento.items.reduce((acc, item) => {
+        const itemVal = Number(item.line_total || 0);
+        return acc + Math.round(itemVal * 100) / 100;
+      }, 0);
+    }
+    return Number(abastecimento.total_amount || 0);
+  }, [abastecimento]);
+
   return (
-    <div className="max-w-lg mx-auto py-6 px-4">
+    <div className="w-full max-w-md mx-auto py-6 px-4">
       {/* Botão Voltar */}
       <div className="mb-6">
         <Link
@@ -79,11 +90,8 @@ export default function ReceiptView({ abastecimento }: ReceiptViewProps) {
         </Link>
       </div>
 
-      {/* Container do Comprovante - Estilo Cupom Fiscal Térmico */}
-      <div className="relative shadow-2xl rounded-sm overflow-hidden bg-white text-slate-900 transition-all">
-        {/* Top Serrated Edge */}
-        <div className="serrated-top-edge"></div>
-
+      {/* Container do Comprovante - Estilo Cupom Fiscal Térmico Serrilhado */}
+      <div className="receipt-paper transition-all">
         {/* Conteúdo do Cupom */}
         <div className="p-6 sm:p-8 space-y-6">
           {/* Cabeçalho */}
@@ -191,7 +199,7 @@ export default function ReceiptView({ abastecimento }: ReceiptViewProps) {
                 Total do Abastecimento
               </span>
               <span className="text-xl font-extrabold text-slate-900 font-mono">
-                {formatCurrency(abastecimento.total_amount)}
+                {formatCurrency(displayTotal)}
               </span>
             </div>
 
@@ -205,7 +213,8 @@ export default function ReceiptView({ abastecimento }: ReceiptViewProps) {
             <div className="flex justify-between text-xs text-slate-600">
               <span>Tipo / Origem:</span>
               <span className="font-medium text-slate-800">
-                {translateTypeFuel(abastecimento.type_fuel)} ({translateOrigin(abastecimento.origin)})
+                {translateTypeFuel(abastecimento.type_fuel)} (
+                {translateOrigin(abastecimento.origin)})
               </span>
             </div>
 
@@ -226,21 +235,16 @@ export default function ReceiptView({ abastecimento }: ReceiptViewProps) {
                 Comprovante Autêntico
               </span>
             </div>
-            <p>Gerado pelo Sistema de Gestão GD Tech</p>
           </div>
         </div>
 
-        {/* Bottom Serrated Edge */}
-        <div className="serrated-bottom-edge"></div>
+        {/* Mensagem de Erro se houver */}
+        {pdfError && (
+          <div className="mt-4 p-3 bg-rose-950/80 border border-rose-800 text-rose-300 rounded-lg text-xs">
+            {pdfError}
+          </div>
+        )}
       </div>
-
-      {/* Mensagem de Erro se houver */}
-      {pdfError && (
-        <div className="mt-4 p-3 bg-rose-950/80 border border-rose-800 text-rose-300 rounded-lg text-xs">
-          {pdfError}
-        </div>
-      )}
-
       {/* Botão de Ação para Baixar/Visualizar PDF */}
       <div className="mt-6">
         <button

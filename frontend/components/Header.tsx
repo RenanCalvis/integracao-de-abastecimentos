@@ -49,9 +49,6 @@ export default function Header({ onSyncComplete }: HeaderProps) {
             <h1 className="text-lg font-bold text-slate-100 leading-tight">
               Gestão de Abastecimentos
             </h1>
-            <p className="text-xs text-slate-400">
-              Integração Incremental & Comprovantes
-            </p>
           </div>
         </div>
 

@@ -26,7 +26,7 @@ function AbastecimentosContent() {
     date_to: searchParams.get('date_to') || undefined,
   };
 
-  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['abastecimentos', filters],
     queryFn: () => fetchAbastecimentos(filters),
   });
@@ -41,7 +41,7 @@ function AbastecimentosContent() {
         {/* Loading State */}
         {isLoading && (
           <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
+            {[...Array(20)].map((_, i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
@@ -92,7 +92,10 @@ function AbastecimentosContent() {
         {!isLoading && !isError && data && data.data.length > 0 && (
           <div className="space-y-3">
             {data.data.map((abastecimento) => (
-              <FuelingCard key={abastecimento.id} abastecimento={abastecimento} />
+              <FuelingCard
+                key={abastecimento.id}
+                abastecimento={abastecimento}
+              />
             ))}
           </div>
         )}
@@ -118,7 +121,7 @@ export default function AbastecimentosPage() {
       <Suspense
         fallback={
           <div className="max-w-7xl w-full mx-auto px-4 py-8 space-y-3">
-            {[...Array(5)].map((_, i) => (
+            {[...Array(20)].map((_, i) => (
               <SkeletonCard key={i} />
             ))}
           </div>

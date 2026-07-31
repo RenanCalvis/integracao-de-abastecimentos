@@ -12,19 +12,38 @@ body {
   min-height: 100vh;
 }
 
-/* Borda serrated (zig-zag / cupom térmico) topo e base */
-.serrated-top-edge {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10' viewBox='0 0 16 10'%3E%3Cpolygon points='0,10 8,0 16,10' fill='%23ffffff'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-position: left top;
-  height: 10px;
-  width: 100%;
+/* Papel de Cupom Fiscal Térmico com bordas serrilhadas (zig-zag) no topo e na base */
+.receipt-paper {
+  position: relative;
+  background-color: #ffffff;
+  color: #0f172a;
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.5));
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
 
-.serrated-bottom-edge {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10' viewBox='0 0 16 10'%3E%3Cpolygon points='0,0 8,10 16,0' fill='%23ffffff'/%3E%3C/svg%3E");
+/* Dentes serrilhados do topo (triângulos brancos apontando para cima) */
+.receipt-paper::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10' viewBox='0 0 16 10'%3E%3Cpolygon points='0,10 8,0 16,10' fill='%23ffffff'/%3E%3C/svg%3E");
   background-repeat: repeat-x;
   background-position: left bottom;
+}
+
+/* Dentes serrilhados da base (triângulos brancos apontando para baixo) */
+.receipt-paper::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
   height: 10px;
-  width: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10' viewBox='0 0 16 10'%3E%3Cpolygon points='0,0 8,10 16,0' fill='%23ffffff'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: left top;
 }
