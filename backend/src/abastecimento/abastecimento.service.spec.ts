@@ -122,6 +122,7 @@ describe('AbastecimentoService (Testes Unitários)', () => {
   describe('findAll', () => {
     it('deve aplicar filtros de busca e retornar lista paginada de abastecimentos', async () => {
       const mockQueryBuilder = {
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
         andWhere: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),

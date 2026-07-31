@@ -77,10 +77,11 @@ export class AbastecimentoService {
     } = query;
     const skip = (page - 1) * limit;
 
-    const queryBuilder =
-      this.abastecimentoRepository.createQueryBuilder('abastecimento');
-    // .leftJoinAndSelect('abastecimento.posto', 'posto')
-    // .leftJoinAndSelect('abastecimento.motorista', 'motorista');
+    const queryBuilder = this.abastecimentoRepository
+      .createQueryBuilder('abastecimento')
+      .leftJoinAndSelect('abastecimento.posto', 'posto')
+      .leftJoinAndSelect('abastecimento.motorista', 'motorista');
+
 
     if (vehicle) {
       queryBuilder.andWhere('abastecimento.vehicle_plate ILIKE :vehicle', {
