@@ -137,6 +137,7 @@ describe('AbastecimentoService (Testes Unitários)', () => {
       const query = {
         page: 1,
         limit: 10,
+        protocolo_number: '100000000000506',
         vehicle: 'MSQ',
         buyer_cpf: '68010511137',
         establishment_cnpj: '10000001000190',
@@ -152,9 +153,14 @@ describe('AbastecimentoService (Testes Unitários)', () => {
       expect(result.limit).toBe(10);
       expect(result.total_pages).toBe(1);
       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'abastecimento.protocolo_number ILIKE :protocolo_number',
+        { protocolo_number: '%100000000000506%' },
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
         'abastecimento.vehicle_plate ILIKE :vehicle',
         { vehicle: '%MSQ%' },
       );
+
       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
         'abastecimento.buyer_cpf = :buyer_cpf',
         { buyer_cpf: '68010511137' },

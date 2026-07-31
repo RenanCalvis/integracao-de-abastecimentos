@@ -27,6 +27,14 @@ export class PaginationQueryDto {
   limit: number = 20;
 
   @ApiPropertyOptional({
+    description: 'Busca por número do protocolo (busca parcial ILIKE)',
+    example: '100000000000506',
+  })
+  @IsOptional()
+  @IsString()
+  protocolo_number?: string;
+
+  @ApiPropertyOptional({
     description: 'Busca por placa do veículo (busca parcial ILIKE)',
     example: 'MSQ7I34',
   })

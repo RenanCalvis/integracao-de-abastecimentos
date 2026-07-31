@@ -19,12 +19,14 @@ function AbastecimentosContent() {
   const filters: AbastecimentoFilters = {
     page: Number(searchParams.get('page')) || 1,
     limit: Number(searchParams.get('limit')) || 20,
+    protocolo_number: searchParams.get('protocolo_number') || undefined,
     vehicle: searchParams.get('vehicle') || undefined,
     buyer_cpf: searchParams.get('buyer_cpf') || undefined,
     establishment_cnpj: searchParams.get('establishment_cnpj') || undefined,
     date_from: searchParams.get('date_from') || undefined,
     date_to: searchParams.get('date_to') || undefined,
   };
+
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['abastecimentos', filters],

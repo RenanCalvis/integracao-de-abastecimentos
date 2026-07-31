@@ -59,6 +59,7 @@ export interface PaginatedAbastecimentoResponse {
 }
 
 export interface AbastecimentoFilters {
+  protocolo_number?: string;
   vehicle?: string;
   buyer_cpf?: string;
   establishment_cnpj?: string;

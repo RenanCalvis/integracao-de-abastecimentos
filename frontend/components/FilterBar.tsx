@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { Search, Filter, X } from 'lucide-react';
 
 export default function FilterBar() {
@@ -9,6 +9,9 @@ export default function FilterBar() {
   const searchParams = useSearchParams();
 
   // Inputs de estado local
+  const [protocoloNumber, setProtocoloNumber] = useState(
+    searchParams.get('protocolo_number') || '',
+  );
   const [vehicle, setVehicle] = useState(searchParams.get('vehicle') || '');
   const [buyerCpf, setBuyerCpf] = useState(searchParams.get('buyer_cpf') || '');
   const [establishmentCnpj, setEstablishmentCnpj] = useState(
@@ -16,15 +19,6 @@ export default function FilterBar() {
   );
   const [dateFrom, setDateFrom] = useState(searchParams.get('date_from') || '');
   const [dateTo, setDateTo] = useState(searchParams.get('date_to') || '');
-
-  // Sincroniza com parâmetros de URL se mudarem externamente
-  useEffect(() => {
-    setVehicle(searchParams.get('vehicle') || '');
-    setBuyerCpf(searchParams.get('buyer_cpf') || '');
-    setEstablishmentCnpj(searchParams.get('establishment_cnpj') || '');
-    setDateFrom(searchParams.get('date_from') || '');
-    setDateTo(searchParams.get('date_to') || '');
-  }, [searchParams]);
 
   // Atualiza a URL mantendo ou limpando parâmetros e reseta a página para 1
   const applyFilters = useCallback(
@@ -50,6 +44,7 @@ export default function FilterBar() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     applyFilters({
+      protocolo_number: protocoloNumber,
       vehicle,
       buyer_cpf: buyerCpf,
       establishment_cnpj: establishmentCnpj,
@@ -59,6 +54,7 @@ export default function FilterBar() {
   };
 
   const handleClear = () => {
+    setProtocoloNumber('');
     setVehicle('');
     setBuyerCpf('');
     setEstablishmentCnpj('');
@@ -71,11 +67,17 @@ export default function FilterBar() {
   };
 
   const hasActiveFilters = Boolean(
-    vehicle || buyerCpf || establishmentCnpj || dateFrom || dateTo,
+    protocoloNumber ||
+    vehicle ||
+    buyerCpf ||
+    establishmentCnpj ||
+    dateFrom ||
+    dateTo,
   );
 
   return (
     <form
+      key={searchParams.toString()}
       onSubmit={handleSearchSubmit}
       className="bg-slate-800 border border-slate-700/80 rounded-xl p-4 mb-6 shadow-lg"
     >
@@ -97,7 +99,21 @@ export default function FilterBar() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+        {/* Número do Protocolo */}
+        <div>
+          <label className="block text-xs font-medium text-slate-400 mb-1">
+            Nº do Protocolo
+          </label>
+          <input
+            type="text"
+            placeholder="Ex: 100000000000506"
+            value={protocoloNumber}
+            onChange={(e) => setProtocoloNumber(e.target.value)}
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+          />
+        </div>
+
         {/* Placa do Veículo */}
         <div>
           <label className="block text-xs font-medium text-slate-400 mb-1">

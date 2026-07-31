@@ -15,7 +15,10 @@ export async function fetchAbastecimentos(
 
   if (filters.page) query.append('page', String(filters.page));
   if (filters.limit) query.append('limit', String(filters.limit));
+  if (filters.protocolo_number)
+    query.append('protocolo_number', filters.protocolo_number);
   if (filters.vehicle) query.append('vehicle', filters.vehicle);
+
   if (filters.buyer_cpf) query.append('buyer_cpf', filters.buyer_cpf);
   if (filters.establishment_cnpj)
     query.append('establishment_cnpj', filters.establishment_cnpj);

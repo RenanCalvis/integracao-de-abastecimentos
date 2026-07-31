@@ -69,6 +69,7 @@ export class AbastecimentoService {
     const {
       page,
       limit,
+      protocolo_number,
       vehicle,
       buyer_cpf,
       establishment_cnpj,
@@ -82,6 +83,14 @@ export class AbastecimentoService {
       .leftJoinAndSelect('abastecimento.posto', 'posto')
       .leftJoinAndSelect('abastecimento.motorista', 'motorista');
 
+    if (protocolo_number) {
+      queryBuilder.andWhere(
+        'abastecimento.protocolo_number ILIKE :protocolo_number',
+        {
+          protocolo_number: `%${protocolo_number}%`,
+        },
+      );
+    }
 
     if (vehicle) {
       queryBuilder.andWhere('abastecimento.vehicle_plate ILIKE :vehicle', {

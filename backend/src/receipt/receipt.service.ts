@@ -116,9 +116,11 @@ export class ReceiptService {
 
       const fuelingDateFormatted = abastecimento.fueling_date
         ? new Date(abastecimento.fueling_date).toLocaleString('pt-BR', {
-            timeZone: 'America/Campo_Grande',
+            timeZone: 'UTC',
           })
         : 'N/A';
+
+
       doc.text(
         `Data do abastecimento: ${fuelingDateFormatted}`,
         margin,

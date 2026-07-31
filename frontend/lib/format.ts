@@ -37,8 +37,10 @@ export function formatDate(dateString: string | Date | undefined | null): string
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    timeZone: 'America/Campo_Grande',
+    timeZone: 'UTC',
   }).format(date);
+
+
 }
 
 export function formatCpf(cpf: string | undefined | null): string {
