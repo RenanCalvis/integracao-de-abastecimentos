@@ -1,67 +1,72 @@
-
 services:
   frontend:
     build:
       context: ./frontend
-    platform: linux/arm64
+      target: production
     ports:
-      - "3100:3000" 
-    volumes:
-      - ./frontend:/usr/src/app
-      - /usr/src/app/node_modules 
+      - "3100:3000"
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:3101
-
+      - NODE_ENV=production
+      - TZ=America/Campo_Grande
+    restart: unless-stopped
 
   backend:
     build:
       context: ./backend
-    platform: linux/arm64
-    command: npm run start:dev
+      target: production
     ports:
-      - "3101:3000" 
-    volumes:
-      - ./backend:/usr/src/app
-      - /usr/src/app/node_modules
+      - "3101:3000"
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://admin:password123@db:5432/abastecimentos_db
+      - NODE_ENV=production
+      - TZ=America/Campo_Grande
+      - PGTZ=America/Campo_Grande
     depends_on:
       db:
         condition: service_healthy
       minio:
         condition: service_started
+    restart: unless-stopped
 
   db:
     image: postgres:15-alpine
-    platform: linux/arm64
     ports:
-      - "3102:5432" 
+      - "3102:5432"
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password123
-      POSTGRES_DB: abastecimentos_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      TZ: America/Campo_Grande
+      PGTZ: America/Campo_Grande
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d abastecimentos_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   minio:
     image: minio/minio
-    platform: linux/arm64
     ports:
       - "3103:9000" # API do MinIO
       - "3104:9001" # Console do MinIO
+    env_file:
+      - .env
     environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: password123
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+      TZ: America/Campo_Grande
     command: server /data --console-address ":9001"
     volumes:
       - miniodata:/data
+    restart: unless-stopped
 
 volumes:
   pgdata:

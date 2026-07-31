@@ -9,8 +9,9 @@ import { AbastecimentoModule } from './abastecimento/abastecimento.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ['../.env', '.env'],
     }),
+
     DatabaseModule,
     AbastecimentoModule,
   ],
@@ -18,4 +19,3 @@ import { AbastecimentoModule } from './abastecimento/abastecimento.module';
   providers: [AppService],
 })
 export class AppModule {}
-

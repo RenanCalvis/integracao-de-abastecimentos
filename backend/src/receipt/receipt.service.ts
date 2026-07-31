@@ -115,7 +115,9 @@ export class ReceiptService {
         });
 
       const fuelingDateFormatted = abastecimento.fueling_date
-        ? new Date(abastecimento.fueling_date).toLocaleString('pt-BR')
+        ? new Date(abastecimento.fueling_date).toLocaleString('pt-BR', {
+            timeZone: 'America/Campo_Grande',
+          })
         : 'N/A';
       doc.text(
         `Data do abastecimento: ${fuelingDateFormatted}`,
@@ -127,7 +129,10 @@ export class ReceiptService {
         },
       );
 
-      const emissionDateFormatted = new Date().toLocaleString('pt-BR');
+      const emissionDateFormatted = new Date().toLocaleString('pt-BR', {
+        timeZone: 'America/Campo_Grande',
+      });
+
       doc.text(`Data de emissão: ${emissionDateFormatted}`, margin, doc.y, {
         align: 'center',
         width: contentWidth,

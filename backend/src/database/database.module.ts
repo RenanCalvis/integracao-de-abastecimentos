@@ -24,6 +24,9 @@ import { join } from 'path';
       logging: process.env.NODE_ENV === 'development',
       migrations: [join(__dirname, '..', 'migrations', '*.{ts,js}')],
       migrationsRun: true,
+      extra: {
+        options: '-c timezone=America/Campo_Grande',
+      },
     }),
   ],
 })

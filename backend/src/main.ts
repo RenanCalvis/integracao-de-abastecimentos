@@ -3,7 +3,10 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+process.env.TZ = 'America/Campo_Grande';
+
 async function bootstrap() {
+
   const app = await NestFactory.create(AppModule);
 
   // Habilita CORS para requisições cross-origin vindas do frontend

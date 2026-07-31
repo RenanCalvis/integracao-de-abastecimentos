@@ -9,4 +9,7 @@ export const AppDataSource = new DataSource({
   entities: [__dirname + '/../**/*.entity.{ts,js}'],
   migrations: [__dirname + '/../migrations/*.{ts,js}'],
   synchronize: false,
+  extra: {
+    options: '-c timezone=America/Campo_Grande',
+  },
 });
